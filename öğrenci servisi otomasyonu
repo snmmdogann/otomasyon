@@ -1,0 +1,371 @@
+//Öğrenci servisi otomasyonu
+#include <conio.h>
+#include <stdio.h> 
+#include <fstream>                  
+#include <iostream>
+#include<cstring>
+using namespace std;
+struct Adres
+{
+	char mahalle[80];
+	char sokak[80];
+	char ev_no[4];	
+};
+struct Ogrenci
+{
+	char ad[80];
+	char soyad[80];
+	char ogr_no[5];
+	char cinsiyet;
+	Adres adres;
+	int uzaklik;
+};
+void YolcuEkle();
+void YolcuListele();
+void YolcuAra();
+void YolcuSil();
+void YolcuDuzenle();
+int main(){
+	setlocale(LC_ALL,"Turkish");
+	char anamenu;
+	do{
+	system("cls");
+	
+	cout << "|-------Hosgeldiniz-------|" << endl ;
+	cout << "|      Secim Yapiniz      |" << endl ;
+	cout << "|    1- Yolcu Ekleme      |" << endl ;
+	cout << "|    2- Yolcu Listeleme   |" << endl ;
+	cout << "|    3- Yolcu Arama       |"<< endl;
+	cout << "|    4- Yolcu Sil         |"<< endl;
+	cout << "|    5- Yolcu Duzenle     |"<< endl;
+	cout << "|-------------------------|" << endl ;
+    char secim;
+	cin>> secim;
+	
+	switch(secim) 
+	{
+		case '1' : 
+		{
+		YolcuEkle();
+		break;	
+		}
+		case '2' : 
+		{
+		 YolcuListele()	;
+		 break;
+		}
+		case '3' : 
+		{
+		 YolcuAra()	;
+		 break;
+		}
+		case '4' : 
+		{
+		 YolcuSil()	;
+		 break;
+		}
+		case '5' : 
+		{
+		YolcuDuzenle();
+		 break;
+		}
+		
+		
+	}
+	
+	cout << "Ana menüye dönmek için:d basin cikmak için: q" <<endl ; 
+	anamenu=getche();
+	
+    }while(anamenu=='d');
+     
+
+return 0;
+}
+Ogrenci yolcu;
+
+void YolcuEkle()
+{
+	ofstream yaz("yolcu.dat",ios::binary |ios::app);
+	char secim;
+	int adet=0;
+	
+	do{
+	cout << "Yolcu Ad Giriniz" << endl;
+	cin>> yolcu.ad;
+	cout << "Yolcu Soyad Giriniz" << endl;
+	cin>> yolcu.soyad;
+	cout << "Yolcu No Giriniz" << endl;
+	cin>> yolcu.ogr_no;
+	cout << "Yolcu Cinsiyet Giriniz (E/K)" << endl;
+	cin>>yolcu.cinsiyet;
+	cout<<"Yolcu Mahalle giriniz:\t"<<endl;
+	cin>>yolcu.adres.mahalle;
+	cout<<"Yolcu Sokak giriniz:\t"<<endl;
+	cin>>yolcu.adres.sokak;
+	cout<<"Yolcu Ev numarası giriniz:\t"<<endl;
+	cin>>yolcu.adres.ev_no;
+	yaz.write((char*)&yolcu, sizeof(yolcu));	
+	adet++;	
+	cout << "Baska Kayit Eklemek Istermisin (E/H)" << endl;
+	secim=getche();
+	cout << endl;
+	}while(secim=='e' || secim=='E');
+	
+	cout << adet << " adet Ogrenci Eklendi.." << endl;
+	
+	yaz.close();
+	
+	
+}
+void YolcuListele()
+{
+	
+	ifstream oku("yolcu.dat",ios::binary |ios::app);
+	
+	oku.seekg(0,ios::end);
+	int kayits=oku.tellg()/sizeof(yolcu);
+	cout << "Toplam Yolcu Kayit Sayisi:"<< kayits << endl;
+	
+	if(kayits>0)
+	{
+		for(int i=0; i<kayits;i++)
+		{
+			oku.seekg(i*sizeof(yolcu));
+			oku.read((char*)&yolcu, sizeof(yolcu));	
+		
+			cout << i+1 << ". Yolcunun Bilgileri"<< endl;
+			cout << "Yolcu Adi: "<< yolcu.ad <<endl ;
+			cout << "Yolcu Soyadi: "<< yolcu.soyad <<endl ;
+			cout << "Yolcu No: "<< yolcu.ogr_no <<endl ;
+			if(yolcu.cinsiyet=='e' || yolcu.cinsiyet=='E')
+			cout << "Yolcu Cinsiyet: ERKEK " <<endl ;
+			else if(yolcu.cinsiyet=='k' || yolcu.cinsiyet=='K')
+			cout << "Yolcu Cinsiyet: KADIN " <<endl ;
+			cout<<"Yolcu Adresi:\t"<<yolcu.adres.mahalle<<" mahallesi "<<yolcu.adres.sokak<< " sokağı "<<yolcu.adres.ev_no<<" numaralı apartman "<<endl;
+			
+		}
+		
+		
+	}
+	else
+	cout << "Kayit Bulunamadi..." << endl;
+
+	oku.close();
+}
+void YolcuAra()
+{
+	
+	ifstream oku("yolcu.dat",ios::binary |ios::app);
+	
+	oku.seekg(0,ios::end);
+	int kayits=oku.tellg()/sizeof(yolcu);
+
+
+cout <<"Aranan Ogrenci Noyu Giriniz"<< endl;
+char yolcu_no[80];
+cin>> yolcu_no;
+ 		
+	if(kayits>0)
+	{
+		for(int i=0; i<kayits;i++)
+		{
+			
+			oku.seekg(i*sizeof(yolcu));
+			oku.read((char*)&yolcu, sizeof(yolcu));
+			
+			if(strcmp(yolcu.ogr_no,yolcu_no)==0)
+			{
+			cout <<  "Bulunan Yolcunun Bilgileri"<< endl;
+			cout << "Yolcu Adi: "<< yolcu.ad <<endl ;
+			cout << "Yolcu Soyadi: "<< yolcu.soyad <<endl ;
+			cout << "Yolcu No: "<< yolcu.ogr_no <<endl ;
+			if(yolcu.cinsiyet=='e' || yolcu.cinsiyet=='E')
+			cout << "Yolcu Cinsiyet: ERKEK " <<endl ;
+			else if(yolcu.cinsiyet=='k' || yolcu.cinsiyet=='K')
+			cout << "Yolcu Cinsiyet: KADIN " <<endl ;
+			cout<<"Yolcu Adresi:\t"<<yolcu.adres.mahalle<<" mahallesi "<<yolcu.adres.sokak<< "sokağı "<<yolcu.adres.ev_no<<" numaralı apartman "<<endl;
+			
+		    }
+		}
+		
+		
+	}
+	else
+	cout << "Kayit Bulunamadi..." << endl;
+
+	oku.close();
+}
+void YolcuSil()
+{
+	 char yolcuno[80];
+     char secim= ' ';
+     bool var=false;
+     
+    ifstream oku("yolcu.dat",ios::binary |ios::app);
+	
+	oku.seekg(0,ios::end);
+
+	int kayitsayisi=oku.tellg()/sizeof(yolcu);
+	
+     cout<<"Kaydini Sileceginiz Yolcunun Numarasını Giriniz : ";
+     cin>>yolcuno;
+
+     for(int i=0;i<kayitsayisi;i++)
+     {
+            oku.seekg(i*sizeof(yolcu));
+			oku.read((char*)&yolcu, sizeof(yolcu));
+			
+     if(strcmp(yolcu.ogr_no,yolcuno)==0)
+       {
+                 cout<<endl;
+                 cout<<"Yolcunun adı:\t"<<yolcu.ad<<endl;;
+                  cout<<"Yolcunun kilosu:\t"<<yolcu.soyad<<endl;
+             		cout<<"Yolcu Adresi:\t"<<yolcu.adres.mahalle<<" mahallesi "<<yolcu.adres.sokak<< "sokağı "<<yolcu.adres.ev_no<<" numaralı apartman "<<endl;
+                 cout<<"Yolcunun cinsiyeti [E/K]: ";
+                 if(yolcu.cinsiyet=='e'||yolcu.cinsiyet=='E')
+                 cout<<"Erkek";
+                 if(yolcu.cinsiyet=='k'||yolcu.cinsiyet=='K')
+                 cout<<"Bayan";
+                cout<<endl;
+         	 				  
+                cout<<"\nSilmek Istediginiz Kayit Bu Mu? [E/H] : ";
+                 secim=getche();
+            if(secim == 'H' || secim == 'h')
+              {      
+			    Ogrenci y_yolcu;
+                ofstream y_dosya("Yedek.dat",ios::app|ios::binary);
+                
+                strcpy(y_yolcu.ad,yolcu.ad);
+                strcpy(y_yolcu.soyad,yolcu.soyad);
+                strcpy(y_yolcu.ogr_no,yolcu.ogr_no);
+                y_yolcu.cinsiyet=yolcu.cinsiyet;
+                strcpy(y_yolcu.adres.ev_no,yolcu.adres.ev_no);
+				strcpy(y_yolcu.adres.mahalle,yolcu.adres.mahalle);
+				strcpy(y_yolcu.adres.sokak,yolcu.adres.sokak); 
+                y_dosya.write((char*)&yolcu, sizeof(yolcu));
+                y_dosya.close();
+              }
+            if(secim=='e'||secim=='E')
+              {
+   			   	var=true;
+  		 	  }
+        }
+             else
+             {
+              Ogrenci y_yolcu;
+              ofstream y_dosya("Yedek.dat",ios::app|ios::binary);
+              
+              strcpy(y_yolcu.ad,yolcu.ad);
+              strcpy(y_yolcu.soyad,yolcu.soyad);
+              strcpy(y_yolcu.ogr_no,yolcu.ogr_no);
+              yolcu.cinsiyet=y_yolcu.cinsiyet;
+               strcpy(y_yolcu.adres.ev_no,yolcu.adres.ev_no);
+				strcpy(y_yolcu.adres.mahalle,yolcu.adres.mahalle);
+				strcpy(y_yolcu.adres.sokak,yolcu.adres.sokak); 
+                       
+              y_dosya.write((char*)&yolcu, sizeof(yolcu));
+              y_dosya.close();
+             }
+     }
+    oku.close();
+    if(var)
+    {
+               remove("yolcu.dat");
+               rename("Yedek.dat","yolcu.dat");
+               cout<<"\n Kayit Silindi"<<endl;
+    }
+    else
+    {
+               remove("Yedek.dat");
+               cout<<"\n Kayit Bulunamadi"<<endl;                  
+    }
+	
+	
+}
+void YolcuDuzenle()
+{
+	 char yolcuno[80];
+     char secim= ' ';
+     bool var=false;
+     
+    ifstream oku("yolcu.dat",ios::binary |ios::app);
+	
+	oku.seekg(0,ios::end);
+
+	int kayitsayisi=oku.tellg()/sizeof(yolcu);
+		
+     cout<<"Kaydini Duzelteceginiz Yolcunun Numarasını Giriniz : ";
+     cin>>yolcuno;
+
+     for(int i=0;i<kayitsayisi;i++)
+     {
+            oku.seekg(i*sizeof(yolcu));
+			oku.read((char*)&yolcu, sizeof(yolcu));
+			
+     		if(strcmp(yolcu.ogr_no,yolcuno)==0)
+     		  {
+     		  	
+                 cout<<endl;
+                 cout<<"Yolcunun adı:\t"<<yolcu.ad<<endl;
+                 cout<<"Yolcunun soyadı:\t"<<yolcu.soyad<<endl;
+                 cout<<"Yolcunun numarası:\t"<<yolcu.ogr_no<<endl;
+                 cout<<"Yolcunun cinsiyeti [E/K]:\t ";
+                 if(yolcu.cinsiyet=='e'||yolcu.cinsiyet=='E')
+                 cout<<"Erkek";
+                 if(yolcu.cinsiyet=='k'||yolcu.cinsiyet=='K')
+                 cout<<"Bayan";
+                 cout<<endl;
+                  cout<<"\n Düzeltmek İstediğiniz Kayıt Bu Mu? [E/H] :\t";
+                  secim=getche();
+                  if(secim == 'E' || secim == 'e')
+                  {
+                     	var=true;
+                        ofstream dosya("Yedek.dat",ios::app|ios::binary);
+                        cout << "\n Yolcu Ad Giriniz" << endl;
+						cin>> yolcu.ad;
+						cout << "Yolcu Soyadı Giriniz" << endl;
+						cin>> yolcu.soyad;
+						cout << "Yolcu Numarası Giriniz" << endl;
+						cin>> yolcu.ogr_no;
+						cout << "Yolcu Cinsiyet Giriniz (E/K)" << endl;
+						cin>>yolcu.cinsiyet;
+						cout << endl;
+		  				cout<<"Yolcunun mahallesini giriniz:\t"<<endl;
+		  				cin>>yolcu.adres.mahalle;
+		  				cout<<"Yolcunun sokağını giriniz:\t"<<endl;
+		  				cin>>yolcu.adres.sokak;
+		  				cout<<"Yolcunun ev numarasını giriniz:\t"<<endl;
+		  				cin>>yolcu.adres.ev_no;
+                        dosya.write((char*)&yolcu, sizeof(yolcu));
+                        dosya.close();
+            	  }
+            	 else
+                 	{
+                         Ogrenci y_yolcu;
+                         ofstream y_dosya;
+                         y_dosya.open("Yedek.dat",ios::app|ios::binary);
+                         
+                    	 strcpy(y_yolcu.ad,yolcu.ad);
+            			 strcpy(y_yolcu.soyad,yolcu.soyad);
+            			 strcpy(y_yolcu.ogr_no,yolcu.ogr_no);
+             			  y_yolcu.cinsiyet=yolcu.cinsiyet;
+                         
+             			 y_dosya.write((char*)&y_yolcu, sizeof(y_yolcu));
+                         y_dosya.close();
+                   }
+     }
+ }
+    oku.close();
+    if(var)
+    {
+               remove("yolcu.dat");
+               rename("Yedek.dat","yolcu.dat");
+               cout<<"\n Kayıt Düzeltildi."<<endl;
+    }
+    else
+    {
+               remove("Yedek.dat");
+               cout<<"\n Kayıt Bulunamadı"<<endl;                  
+    }
+
+}
